@@ -7,6 +7,7 @@ const accounts = {
   "Aloharbitrahnik123": "ARBITRAJ3",
   "TESTAC": "TESTAC",
   "NAZARK": "Geometrydash1488"
+"Egoroblox": "undertale52"
 };
 
 const promoCodes = {
