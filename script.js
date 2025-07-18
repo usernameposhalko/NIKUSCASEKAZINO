@@ -51,6 +51,7 @@ function loadData() {
     usedPromos = JSON.parse(localStorage.getItem(currentUser + "_usedPromos")) || [];
     blockedItems = new Set(JSON.parse(localStorage.getItem(currentUser + "_blockedItems")) || []);
     cart = JSON.parse(localStorage.getItem(currentUser + "_cart")) || [];
+    // Відновити статус використання промокодів
     for (const code of usedPromos) {
       if (promoCodes[code]) {
         promoCodes[code].used = true;
