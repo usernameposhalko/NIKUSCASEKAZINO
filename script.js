@@ -8,8 +8,8 @@ const accounts = {
   "TESTAC": "TESTAC",
   "NAZARK": "Geometrydash1488",
   "Egoroblox": "undertale52",
-  "SIGMA228": "yourPassword1",
-  "BABULKA777": "yourPassword2"
+  "SIGMA228": "ebubabalku",
+  "BABULKA777": "skibidi7"
 };
 
 const promoCodes = {
