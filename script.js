@@ -342,6 +342,7 @@ function getDropPool(type) {
   else if (type === "box") return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
   else if (type === "gift") return [
     { name: "Тунг—Сахур", rarity: "Секретна", img: "red1.png", chance: 100 }
+    { name: "Тралалеро",rarity: "Секретна", img "red1.png",chance:  100 }
   ];
   else return [];
 }
