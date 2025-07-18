@@ -17,11 +17,9 @@ const promoCodes = {
   "R0lGVFRFTQ==": {used: false, reward: () => addCase("gift")},
   "U1BJTkNPSU4=": {used: true, reward: () => alert("Спіни ще не реалізовано")},
   "T1BFTkJBVExQQVM=": {used: true, reward: () => alert("Батл пас буде додано")},
-  "RE9OQVRMTjE0ODg=": {used: false, unlimited: true, reward: () => addBalance(100)},
-  "SEFMQVZBMTAwMA==": {used: false, reward: () => addBalance(1000)},
-  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")},
-  "U0lHTUEyMjg=": {used: false, reward: () => alert("Логін SIGMA228 активовано")},
-  "QkFCVUxLQTc3Nw==": {used: false, reward: () => alert("Логін BABULKA777 активовано")}
+  "RE9UQVRMTA0ODg=": {used: false, unlimited: true, reward: () => addBalance(100)},  // 
+  "SEFMQVFhWWFg=": {used: false, unlimited: true, reward: () => addBalance(1000)}, // 
+  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")}
 };
 
 let currentUser = null;
