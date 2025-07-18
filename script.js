@@ -358,7 +358,6 @@ function getDropPool(type) {
 // 👉 І після цього вже можна вставляти:
 function weightedRandom(items) {
   let total = 0;
-  // ...
 }
   items.forEach(i => total += i.chance);
   let r = Math.r
