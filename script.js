@@ -315,23 +315,24 @@ function openCase(index) {
   const premiumChance = 0.07;
   const premium = quality !== "Зношена" && Math.random() < premiumChance;
 
-  setTimeout(() => {
-    alert(`Випало: ${selected.name}\nРідкість: ${selected.rarity}\nЯкість: ${quality}${premium ? "\n🌟 Преміум!" : ""}`);
-    inventory.splice(index, 1);
-    inventory.push({
-      type: "bill",
-      name: selected.name,
-      rarity: selected.rarity,
-      img: selected.img,
-      quality,
-      premium,
-      id: generateId()
-    });
-    saveData();
-    showInventory();
-  }, 500);
+setTimeout(() => {
+  alert(`Випало: ${selected.name}\nРідкість: ${selected.rarity}\nЯкість: ${quality}${premium ? "\n🌟 Преміум!" : ""}`);
+  inventory.splice(index, 1);
+  inventory.push({
+    type: "bill",
+    name: selected.name,
+    rarity: selected.rarity,
+    img: selected.img,
+    quality,
+    premium,
+    id: generateId()
+  });
+  saveData();
+  showInventory();
+}, 500);
 }
 
+// 👇 після завершення попередньої функції, починається нова:
 function getDropPool(type) {
   if (type === "autumn") return [
     { name: "Пасхалочнік", rarity: "Звичайна", img: "green1.png", chance: 25 },
@@ -342,13 +343,25 @@ function getDropPool(type) {
     { name: "Сігма", rarity: "Епічна", img: "purple2.png", chance: 7 },
     { name: "Бомбордіро", rarity: "Секретна", img: "red1.png", chance: 1 }
   ];
-  else if (type === "box") return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
+
+  else if (type === "box")
+    return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
+
   else if (type === "gift") return [
-    { name: "Тунг—Сахур", rarity: "Секретна", img: "red1.png", chance: 100 }
+    { name: "Тралалеро", rarity: "Секретна", img: "red2.png", chance: 50 },
+    { name: "Тунг—Сахур", rarity: "Секретна", img: "red3.png", chance: 50 }
   ];
+
   else return [];
 }
 
+// 👉 І після цього вже можна вставляти:
+function weightedRandom(items) {
+  let total = 0;
+  // ...
+}
+  items.forEach(i => total += i.chance);
+  let r = Math.r
 function weightedRandom(items) {
   let total = 0;
   items.forEach(i => total += i.chance);
