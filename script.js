@@ -13,13 +13,13 @@ const accounts = {
 };
 
 const promoCodes = {
-  "TkNJU1VEMzc=": {used: true, unlimited: false, reward: () => addBalance(100)},      // NICUSCASE37 - вже використано
-  "R0lGVFRFTQ==": {used: false, unlimited: false, reward: () => addCase("gift")},    // GIFTTEAM
-  "U1BJTkNPSU4=": {used: true, unlimited: false, reward: () => alert("Спіни ще не реалізовано")}, // SPINCOIN - неактивний
-  "T1BFTkJBVExQQVM=": {used: true, unlimited: false, reward: () => alert("Батл пас буде додано")}, // OPENBATLPAS - неактивний
-  "RE9UQVRMTA0ODg=": {used: false, unlimited: true, reward: () => addBalance(100)},  // DONAT1488 - безлімітний 100 нікусів
-  "SEFMQVFhWWFg=": {used: false, unlimited: true, reward: () => addBalance(1000)},   // HALAVAXXX - безлімітний 1000 нікусів
-  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")}      // REALGIFT - подарунковий кейс безлімітний
+  "TkNJU1VEMzc=": {used: false, reward: () => addBalance(100)},      // NICUSD37
+  "R0lGVFRFTE0=": {used: false, reward: () => addCase("gift")},      // GIFTELM (подарунковий кейс)
+  "U1BJTkNPSU4=": {used: false, reward: () => alert("Спіни ще не реалізовано")}, // SPINCOIN
+  "T1BFTkJBVExQQVM=": {used: false, reward: () => alert("Батл пас буде додано")}, // OPENBATLPAS
+  "RE9OQVRMTjE0ODg=": {used: false, reward: () => addBalance(100)},  // DONATLN1488 (100 нікусів)
+  "SEFMQVhYWA==": {used: false, unlimited: true, reward: () => addBalance(1000)}, // HALAVAXXX (1000 нікусів безліміт)
+  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")} // REALGIFT (безлімітний подарунковий кейс)
 };
 
 let currentUser = null;
@@ -97,7 +97,7 @@ function mainMenu() {
     <div style="margin: 10px;">
       <img src="img/case_gift.png" width="150"><br>
       <button disabled>Подарунковий кейс (Тільки через промо-код)</button><br>
-      <small>Одноразовий промо-код: GIFTTEM</small><br>
+      <small>Одноразовий промо-код: GIFTELM</small><br>
       <small style="user-select:none; color:#331f00;">Багаторазовий промо-код (секретний): REALGIFT</small>
     </div>
   `;
@@ -140,7 +140,7 @@ function showInventory() {
       const isBlocked = blockedItems.has(item.id);
       if (item.type === "case") {
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center;">
+          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; box-shadow: 0 0 5px 2px gold;">
             <b>Кейс: ${getCaseName(item.caseType)}</b><br />
             <img src="img/case_${item.caseType}.png" width="120" /><br />
             <button onclick="openCase(${idx})" ${isBlocked ? "disabled" : ""}>Відкрити</button><br />
@@ -154,7 +154,7 @@ function showInventory() {
       } else if (item.type === "bill") {
         const premium = item.premium ? "🌟Преміум" : "";
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; cursor:pointer;">
+          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; box-shadow: 0 0 5px 2px gold; cursor:pointer;">
             <img src="img/${item.img}" width="120" /><br />
             <b>${item.name}</b><br />
             <i>${item.rarity}</i><br />
@@ -364,12 +364,14 @@ function goToPromoMenu() {
 }
 
 function applyPromo() {
-  const input = document.getElementById("promoInput").value.trim().toUpperCase();
+  const input = document.getElementById("promoInput").value.trim();
   if (!input) {
     alert("Введи промо-код");
     return;
   }
-  const encoded = btoa(input);
+  const codeUpper = input.toUpperCase();
+  const encoded = btoa(codeUpper);
+
   if (!(encoded in promoCodes)) {
     alert("Промо-код невірний або неактивний");
     return;
@@ -380,18 +382,18 @@ function applyPromo() {
     return;
   }
   promo.reward();
-  if (!promo.unlimited) {
-    promo.used = true;
-  }
+  promo.used = true;
   if (!usedPromos.includes(encoded)) usedPromos.push(encoded);
   saveData();
+  alert("Промо-код активовано!");
   goToPromoMenu();
 }
 
 function generateId() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return Math.random().toString(36).substr(2, 9);
 }
 
+// --- Старт програми ---
 window.onload = () => {
   loginScreen();
 };
