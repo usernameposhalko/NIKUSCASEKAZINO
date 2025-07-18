@@ -11,9 +11,15 @@ const accounts = {
   "SIGMA228": "KOT1488",
   "BABULKA777": "KOT52"
 };
+
 function b64ToStr(b64) {
   return decodeURIComponent(escape(window.atob(b64)));
 }
+
+function strToB64(str) {
+  return window.btoa(unescape(encodeURIComponent(str)));
+}
+
 const promoCodesBase64 = {
   "TklDVVMxMjM=": {type:"once", reward:()=>{addBalance(250); alert("Отримано 250 нікусів!");}},
   "TklLVVM0NTY=": {type:"once", reward:()=>{addBalance(100); alert("Отримано 100 нікусів!");}},
@@ -30,15 +36,7 @@ const promoCodesBase64 = {
   "Qk9YMzIx": {type:"unlimited", reward:()=>{addCase("box"); alert("Отримано кейс Бокс!");}},
   "TU9ORVk5ODc=": {type:"unlimited", reward:()=>{addBalance(1000); alert("Отримано 1000 нікусів!");}},
   "UkVBTEdJUlQ=": {type:"unlimited", reward:()=>{addCase("gift"); alert("Отримано подарунковий кейс!");}}
-}
-function b64ToStr(b64) {
-  return decodeURIComponent(escape(window.atob(b64)));
-}
-
-function strToB64(str) {
-  return window.btoa(unescape(encodeURIComponent(str)));
-}
-
+};
 
 let currentUser = null;
 let balance = 0;
@@ -315,24 +313,23 @@ function openCase(index) {
   const premiumChance = 0.07;
   const premium = quality !== "Зношена" && Math.random() < premiumChance;
 
-setTimeout(() => {
-  alert(`Випало: ${selected.name}\nРідкість: ${selected.rarity}\nЯкість: ${quality}${premium ? "\n🌟 Преміум!" : ""}`);
-  inventory.splice(index, 1);
-  inventory.push({
-    type: "bill",
-    name: selected.name,
-    rarity: selected.rarity,
-    img: selected.img,
-    quality,
-    premium,
-    id: generateId()
-  });
-  saveData();
-  showInventory();
-}, 500);
+  setTimeout(() => {
+    alert(`Випало: ${selected.name}\nРідкість: ${selected.rarity}\nЯкість: ${quality}${premium ? "\n🌟 Преміум!" : ""}`);
+    inventory.splice(index, 1);
+    inventory.push({
+      type: "bill",
+      name: selected.name,
+      rarity: selected.rarity,
+      img: selected.img,
+      quality,
+      premium,
+      id: generateId()
+    });
+    saveData();
+    showInventory();
+  }, 500);
 }
 
-// 👇 після завершення попередньої функції, починається нова:
 function getDropPool(type) {
   if (type === "autumn") return [
     { name: "Пасхалочнік", rarity: "Звичайна", img: "green1.png", chance: 25 },
@@ -343,24 +340,14 @@ function getDropPool(type) {
     { name: "Сігма", rarity: "Епічна", img: "purple2.png", chance: 7 },
     { name: "Бомбордіро", rarity: "Секретна", img: "red1.png", chance: 1 }
   ];
-
-  else if (type === "box")
-    return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
-
+  else if (type === "box") return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
   else if (type === "gift") return [
     { name: "Тралалеро", rarity: "Секретна", img: "red2.png", chance: 50 },
     { name: "Тунг—Сахур", rarity: "Секретна", img: "red3.png", chance: 50 }
   ];
-
   else return [];
 }
 
-// 👉 І після цього вже можна вставляти:
-function weightedRandom(items) {
-  let total = 0;
-}
-  items.forEach(i => total += i.chance);
-  let r = Math.r
 function weightedRandom(items) {
   let total = 0;
   items.forEach(i => total += i.chance);
