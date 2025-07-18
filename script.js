@@ -12,14 +12,6 @@ const accounts = {
   "BABULKA777": "KOT52"
 };
 
-function b64ToStr(b64) {
-  return decodeURIComponent(escape(window.atob(b64)));
-}
-
-function strToB64(str) {
-  return window.btoa(unescape(encodeURIComponent(str)));
-}
-
 const promoCodesBase64 = {
   "TklDVVMxMjM=": {type:"once", reward:()=>{addBalance(250); alert("Отримано 250 нікусів!");}},
   "TklLVVM0NTY=": {type:"once", reward:()=>{addBalance(100); alert("Отримано 100 нікусів!");}},
@@ -340,15 +332,11 @@ function getDropPool(type) {
     { name: "Сігма", rarity: "Епічна", img: "purple2.png", chance: 7 },
     { name: "Бомбордіро", rarity: "Секретна", img: "red1.png", chance: 1 }
   ];
-
-  else if (type === "box")
-    return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
-
+  else if (type === "box") return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
   else if (type === "gift") return [
     { name: "Тралалеро", rarity: "Секретна", img: "red2.png", chance: 50 },
     { name: "Тунг—Сахур", rarity: "Секретна", img: "red3.png", chance: 50 }
   ];
-
   else return [];
 }
 
@@ -398,7 +386,7 @@ function applyPromo() {
     alert("Введіть промокод");
     return;
   }
-  const codeB64 = strToB64(codeInput);
+  const codeB64 = window.btoa(unescape(encodeURIComponent(codeInput)));
   const promo = promoCodesBase64[codeB64];
   if (!promo) {
     alert("Промокод не знайдено");
@@ -413,8 +401,13 @@ function applyPromo() {
     usedPromos.push(codeInput);
   }
   saveData();
-  mainMenu();
+  goToPromoMenu();
 }
 
-// Початок роботи
-loginScreen();
+window.onload = () => {
+  if (!currentUser) loginScreen();
+  else {
+    loadData();
+    mainMenu();
+  }
+};
