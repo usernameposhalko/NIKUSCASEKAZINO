@@ -13,15 +13,15 @@ const accounts = {
 };
 
 const promoCodes = {
-  "TkNJU1VEMzc=": {used: true, reward: () => addBalance(100)},
-  "R0lGVFRFTQ==": {used: false, reward: () => addCase("gift")},
-  "U1BJTkNPSU4=": {used: true, reward: () => alert("Спіни ще не реалізовано")},
-  "T1BFTkJBVExQQVM=": {used: true, reward: () => alert("Батл пас буде додано")},
-  "RE9OQVRMTjE0ODg=": {used: false, unlimited: true, reward: () => addBalance(100)},
-  "SEFMQVZBMTAwMA==": {used: false, reward: () => addBalance(1000)},
-  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")},
-  "U0lHTUEyMjg=": {used: false, reward: () => alert("Логін SIGMA228 активовано")},
-  "QkFCVUxLQTc3Nw==": {used: false, reward: () => alert("Логін BABULKA777 активовано")}
+  "TkNJU1VEMzc=": { used: true, reward: () => addBalance(100) },          // NICUSD37
+  "R0lGVFRFTQ==": { used: false, reward: () => addCase("gift") },         // GIFTTEM
+  "U1BJTkNPSU4=": { used: true, reward: () => alert("Спіни ще не реалізовано") }, // SPINCOIN
+  "T1BFTkJBVExQQVM=": { used: true, reward: () => alert("Батл пас буде додано") }, // OPENBATLPAS
+  "RE9OQVRMTjE0ODg=": { used: false, unlimited: true, reward: () => addBalance(100) }, // DONAT1488
+  "SEFMQVZBMTAwMA==": { used: false, reward: () => addBalance(1000) },    // HALAVA1000
+  "UkVBTEdJRlQ=": { used: false, unlimited: true, reward: () => addCase("gift") }, // REALGIFT
+  "U0lHTUEyMjg=": { used: false, reward: () => alert("Логін SIGMA228 активовано") },
+  "QkFCVUxLQTc3Nw==": { used: false, reward: () => alert("Логін BABULKA777 активовано") }
 };
 
 let currentUser = null;
@@ -30,6 +30,7 @@ let inventory = [];
 let usedPromos = [];
 let blockedItems = new Set();
 let cart = [];
+let selectedIndex = null;
 
 function addBalance(amount) {
   balance += amount;
@@ -47,21 +48,25 @@ function saveData() {
 }
 
 function loadData() {
-  if (currentUser) {
-    balance = parseInt(localStorage.getItem(currentUser + "_balance")) || 0;
-    inventory = JSON.parse(localStorage.getItem(currentUser + "_inventory")) || [];
-    usedPromos = JSON.parse(localStorage.getItem(currentUser + "_promos")) || [];
-    blockedItems = new Set(JSON.parse(localStorage.getItem(currentUser + "_blockedItems")) || []);
-    cart = JSON.parse(localStorage.getItem(currentUser + "_cart")) || [];
+  if (!currentUser) return;
+  balance = parseInt(localStorage.getItem(currentUser + "_balance")) || 0;
+  inventory = JSON.parse(localStorage.getItem(currentUser + "_inventory")) || [];
+  usedPromos = JSON.parse(localStorage.getItem(currentUser + "_promos")) || [];
+  blockedItems = new Set(JSON.parse(localStorage.getItem(currentUser + "_blockedItems")) || []);
+  cart = JSON.parse(localStorage.getItem(currentUser + "_cart")) || [];
+  if (currentUser === "TESTAC") {
+    inventory = [];
+    saveData();
   }
 }
 
 function loginScreen() {
-  document.getElementById("app").innerHTML =
-    `<h2>Вхід у акаунт</h2>
-     <input id='login' placeholder='Логін'><br>
-     <input id='password' placeholder='Пароль' type='password'><br>
-     <button onclick='login()'>Увійти</button>`;
+  document.getElementById("app").innerHTML = `
+    <h2>Вхід у акаунт</h2>
+    <input id='login' placeholder='Логін'><br>
+    <input id='password' placeholder='Пароль' type='password'><br>
+    <button onclick='login()'>Увійти</button>
+  `;
 }
 
 function login() {
@@ -87,6 +92,7 @@ function mainMenu() {
   let html = `<h2>Вітаю, ${currentUser}</h2>`;
   html += `<p>Баланс: ${balance} нікусів</p>`;
   html += `<div style="display:flex; flex-wrap:wrap; justify-content:center;">`;
+
   html += `
     <div style="margin: 10px;">
       <img src="img/case_autumn.png" width="150"><br>
@@ -108,6 +114,7 @@ function mainMenu() {
   html += `<button onclick='showInventory()'>🎒 Інвентар (${inventory.length})</button><br>`;
   html += `<button onclick='showCart()'>🛒 Кошик (${cart.length})</button><br>`;
   html += `<button onclick='logout()'>🚪 Вийти</button>`;
+
   document.getElementById("app").innerHTML = html;
 }
 
@@ -137,12 +144,12 @@ function showInventory() {
   if (inventory.length === 0) {
     html += `<p>Інвентар порожній.</p>`;
   } else {
-    html += `<div style="display:flex; flex-wrap:wrap; justify-content:center;">`;
+    html += `<div class="flex-center">`;
     inventory.forEach((item, idx) => {
       const isBlocked = blockedItems.has(item.id);
       if (item.type === "case") {
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center;">
+          <div class="inventory-item ${selectedIndex === idx ? 'selected' : ''}">
             <b>Кейс: ${getCaseName(item.caseType)}</b><br />
             <img src="img/case_${item.caseType}.png" width="120" /><br />
             <button onclick="openCase(${idx})" ${isBlocked ? "disabled" : ""}>Відкрити</button><br />
@@ -156,7 +163,7 @@ function showInventory() {
       } else if (item.type === "bill") {
         const premium = item.premium ? "🌟Преміум" : "";
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; cursor:pointer;">
+          <div class="inventory-item ${selectedIndex === idx ? 'selected' : ''}" onclick="selectItem(${idx})" style="cursor:pointer;">
             <img src="img/${item.img}" width="120" /><br />
             <b>${item.name}</b><br />
             <i>${item.rarity}</i><br />
@@ -174,6 +181,11 @@ function showInventory() {
   }
   html += `<br /><button onclick="mainMenu()">← Назад</button>`;
   document.getElementById("app").innerHTML = html;
+}
+
+function selectItem(index) {
+  selectedIndex = selectedIndex === index ? null : index;
+  showInventory();
 }
 
 function toggleBlockItem(index) {
@@ -199,17 +211,12 @@ function addToCart(index) {
     alert("Кошик заповнений!");
     return;
   }
+  // Додати у кошик
   cart.push(item);
+  // ВИДАЛИТИ З ІНВЕНТАРЮ
   inventory.splice(index, 1);
   saveData();
   alert(`"${item.type === "case" ? getCaseName(item.caseType) : item.name}" додано до кошика`);
-  showInventory();
-}
-
-function deleteItem(index) {
-  if (index < 0 || index >= inventory.length) return;
-  inventory.splice(index, 1);
-  saveData();
   showInventory();
 }
 
@@ -218,11 +225,11 @@ function showCart() {
   if (cart.length === 0) {
     html += `<p>Кошик порожній.</p>`;
   } else {
-    html += `<div style="display:flex; flex-wrap:wrap; justify-content:center;">`;
+    html += `<div class="flex-center">`;
     cart.forEach((item, idx) => {
       if (item.type === "case") {
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center;">
+          <div class="inventory-item">
             <b>Кейс: ${getCaseName(item.caseType)}</b><br />
             <img src="img/case_${item.caseType}.png" width="120" /><br />
             <button onclick="removeFromCart(${idx})">Видалити з кошика</button>
@@ -231,7 +238,7 @@ function showCart() {
       } else if (item.type === "bill") {
         const premium = item.premium ? "🌟Преміум" : "";
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center;">
+          <div class="inventory-item">
             <img src="img/${item.img}" width="120" /><br />
             <b>${item.name}</b><br />
             <i>${item.rarity}</i><br />
@@ -245,14 +252,14 @@ function showCart() {
     html += `<button onclick="buyCartItems()">Купити всі предмети з кошика</button><br>`;
   }
   html += `<br><button onclick="mainMenu()">← Назад</button>`;
-  html += `<button onclick="logout()">🚪 Вийти</button>`;
+  html += `<br><button onclick="logout()">🚪 Вийти</button>`;
   document.getElementById("app").innerHTML = html;
 }
 
 function removeFromCart(index) {
   if (index < 0 || index >= cart.length) return;
   const item = cart.splice(index, 1)[0];
-  inventory.push(item);
+  inventory.push(item); // повернути предмет назад в інвентар
   saveData();
   showCart();
 }
@@ -272,6 +279,8 @@ function buyCartItems() {
   cart.forEach(item => {
     if (item.type === "case") {
       addCase(item.caseType);
+    } else {
+      inventory.push(item);
     }
   });
   cart = [];
@@ -283,115 +292,48 @@ function buyCartItems() {
 function getCaseName(type) {
   return type === "autumn" ? "Осінь25" :
          type === "box" ? "Бокс Осінь25" :
-         type === "gift" ? "Подарунковий кейс" : "Невідомо";
+         type === "gift" ? "Подарунковий кейс" : "Кейс";
 }
 
-function openCase(index) {
-  if (index < 0 || index >= inventory.length) return;
-  if (blockedItems.has(inventory[index].id)) {
-    alert("Цей кейс заблоковано!");
-    return;
-  }
-  const caseType = inventory[index].caseType;
-  const items = getDropPool(caseType);
-  const selected = weightedRandom(items);
-  const quality = getQuality();
-  const premiumChance = 0.07;
-  const premium = quality !== "Зношена" && Math.random() < premiumChance;
-
-  setTimeout(() => {
-    alert(`Випало: ${selected.name}\nРідкість: ${selected.rarity}\nЯкість: ${quality}${premium ? "\n🌟 Преміум!" : ""}`);
-    inventory.splice(index, 1);
-    inventory.push({
-      type: "bill",
-      name: selected.name,
-      rarity: selected.rarity,
-      img: selected.img,
-      quality,
-      premium,
-      id: generateId()
-    });
-    saveData();
-    showInventory();
-  }, 500);
-}
-
-function getDropPool(type) {
-  if (type === "autumn") return [
-    { name: "Пасхалочнік", rarity: "Звичайна", img: "green1.png", chance: 25 },
-    { name: "Єнот", rarity: "Звичайна", img: "green2.png", chance: 25 },
-    { name: "Хамстер", rarity: "Виняткова", img: "blue1.png", chance: 17.5 },
-    { name: "Сатана", rarity: "Виняткова", img: "blue2.png", chance: 17.5 },
-    { name: "Волтер Вайт", rarity: "Епічна", img: "purple1.png", chance: 7 },
-    { name: "Сігма", rarity: "Епічна", img: "purple2.png", chance: 7 },
-    { name: "Бомбордіро", rarity: "Секретна", img: "red1.png", chance: 1 }
-  ];
-  else if (type === "box") return getDropPool("autumn").filter(x => x.rarity !== "Секретна");
-  else if (type === "gift") return [
-    { name: "Тунг—Сахур", rarity: "Секретна", img: "red3.png", chance: 1.25 },
-    { name: "Тралалеро", rarity: "Секретна", img: "red2.png", chance: 1.25 },
-    { name: "Волтер Вайт", rarity: "Епічна", img: "purple1.png", chance: 18.75 },
-    { name: "Сігма", rarity: "Епічна", img: "purple2.png", chance: 18.75 },
-    { name: "Хамстер", rarity: "Виняткова", img: "blue1.png", chance: 30 },
-    { name: "Сатана", rarity: "Виняткова", img: "blue2.png", chance: 30 }
-  ];
-  return [];
-}
-
-function getQuality() {
-  const roll = Math.random() * 100;
-  if (roll < 12.5) return "Прямо з цеху";
-  if (roll < 37.5) return "Після консервації";
-  if (roll < 77.5) return "Після уроку";
-  return "Зношена";
-}
-
-function weightedRandom(pool) {
-  const total = pool.reduce((acc, item) => acc + item.chance, 0);
-  let roll = Math.random() * total;
-  for (let item of pool) {
-    if (roll < item.chance) return item;
-    roll -= item.chance;
-  }
-  return pool[pool.length - 1];
+function generateId() {
+  return '_' + Math.random().toString(36).substr(2, 9);
 }
 
 function goToPromoMenu() {
-  let html = `<h2>Меню промо-кодів</h2>`;
-  html += `<p>Введи промо-код нижче:</p>`;
-  html += `<input id="promoInput" placeholder="Введи промо-код">`;
-  html += `<button onclick="applyPromo()">Активувати</button><br>`;
-  html += `<button onclick="mainMenu()">← Назад</button>`;
+  let html = `<h2>Промо-коди</h2>`;
+  html += `
+    <input id="promoInput" placeholder="Введіть промо-код" />
+    <button onclick="applyPromo()">Активувати</button>
+  `;
+  html += `<br><br><button onclick="mainMenu()">← Назад</button>`;
   document.getElementById("app").innerHTML = html;
+}
+
+function base64Decode(str) {
+  try {
+    return atob(str);
+  } catch {
+    return "";
+  }
 }
 
 function applyPromo() {
   const input = document.getElementById("promoInput").value.trim();
-  if (!input) {
-    alert("Введи промо-код");
+  const encodedInput = btoa(input);
+  if (!(encodedInput in promoCodes)) {
+    alert("Промо-код не знайдено або невірний");
     return;
   }
-  const encoded = btoa(input.toUpperCase());
-  if (!(encoded in promoCodes)) {
-    alert("Промо-код невірний або неактивний");
-    return;
-  }
-  const promo = promoCodes[encoded];
+  const promo = promoCodes[encodedInput];
   if (promo.used && !promo.unlimited) {
-    alert("Цей промо-код уже використано");
+    alert("Промо-код вже використано");
     return;
   }
   promo.reward();
-  promo.used = true;
-  if (!usedPromos.includes(encoded)) usedPromos.push(encoded);
+  if (!promo.unlimited) promo.used = true;
+  usedPromos.push(encodedInput);
   saveData();
-  goToPromoMenu();
+  mainMenu();
 }
 
-function generateId() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-window.onload = () => {
-  loginScreen();
-};
+loginScreen();
