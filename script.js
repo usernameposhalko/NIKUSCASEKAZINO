@@ -13,13 +13,30 @@ const accounts = {
 };
 
 const promoCodes = {
-  "TkNJU1VEMzc=": {used: false, reward: () => { addBalance(100); alert("Отримано 100 нікусів!"); }},
-  "R0lGVFRFTQ==": {used: false, reward: () => { addCase("gift"); alert("Отримано подарунковий кейс!"); }},
-  "U1BJTkNPSU4=": {used: false, reward: () => { alert("Спіни ще не реалізовано"); }},
-  "T1BFTkJBVExQQVM=": {used: false, reward: () => { alert("Батл пас буде додано"); }},
-  "RE9OQVRMTjE0ODg=": {used: false, unlimited: true, reward: () => { addBalance(100); alert("Отримано 100 нікусів!"); }},
-  "SEFMQVFhWWFg=": {used: false, unlimited: true, reward: () => { addBalance(1000); alert("Отримано 1000 нікусів!"); }},
-  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => { addCase("gift"); alert("Отримано подарунковий кейс!"); }}
+  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => { addCase("gift"); alert("Отримано подарунковий кейс!"); }},
+  "SEFMQVZBWFhY": {used: false, unlimited: true, reward: () => { addBalance(1000); alert("Отримано 1000 нікусів!"); }},
+  "RE9OQVRJNDg4": {used: false, unlimited: true, reward: () => { addBalance(100); alert("Отримано 100 нікусів!"); }},
+  "R0lGVFRFTQ==": {used: false, reward: () => { addCase("box"); alert("Отримано кейс box!"); }},
+  "TklLVVNDQVNF": {used: false, reward: () => { addBalance(250); alert("Отримано 250 нікусів!"); }},
+  "TklDVVNUT1A=": {used: false, reward: () => { addBalance(500); alert("Отримано 500 нікусів!"); }},
+  "VUxUUkFDT0RF": {used: false, reward: () => {
+    const pool = getDropPool("autumn").concat(getDropPool("box")).concat(getDropPool("gift"));
+    const item = weightedRandom(pool);
+    const quality = getQuality();
+    const premiumChance = 0.07;
+    const premium = quality !== "Зношена" && Math.random() < premiumChance;
+    inventory.push({
+      type: "bill",
+      name: item.name,
+      rarity: item.rarity,
+      img: item.img,
+      quality,
+      premium,
+      id: generateId()
+    });
+    saveData();
+    alert(`Отримано випадковий предмет: ${item.name} (${item.rarity})`);
+  }}
 };
 
 let currentUser = null;
@@ -51,7 +68,6 @@ function loadData() {
     usedPromos = JSON.parse(localStorage.getItem(currentUser + "_usedPromos")) || [];
     blockedItems = new Set(JSON.parse(localStorage.getItem(currentUser + "_blockedItems")) || []);
     cart = JSON.parse(localStorage.getItem(currentUser + "_cart")) || [];
-    // Відновити статус використання промокодів
     for (const code of usedPromos) {
       if (promoCodes[code]) {
         promoCodes[code].used = true;
@@ -302,7 +318,6 @@ function openCase(index) {
   const quality = getQuality();
   const premiumChance = 0.07;
   const premium = quality !== "Зношена" && Math.random() < premiumChance;
-
   setTimeout(() => {
     alert(`Випало: ${selected.name}\nРідкість: ${selected.rarity}\nЯкість: ${quality}${premium ? "\n🌟 Преміум!" : ""}`);
     inventory.splice(index, 1);
@@ -364,18 +379,18 @@ function goToPromoMenu() {
   let html = `<h2>Меню промо-кодів</h2>`;
   html += `<p>Введи промо-код нижче:</p>`;
   html += `<input id="promoInput" placeholder="Введи промо-код">`;
-  html += `<button onclick="applyPromo()">Активувати</button><br>`;
+  html += `<button onclick="applyPromo()">Активувати</button><br><br>`;
   html += `<button onclick="mainMenu()">← Назад</button>`;
   document.getElementById("app").innerHTML = html;
 }
 
 function applyPromo() {
-  const input = document.getElementById("promoInput").value.trim();
+  const input = document.getElementById("promoInput").value.trim().toUpperCase();
   if (!input) {
     alert("Введи промо-код");
     return;
   }
-  const encoded = btoa(input.toUpperCase());
+  const encoded = btoa(input);
   if (!(encoded in promoCodes)) {
     alert("Промо-код невірний або неактивний");
     return;
@@ -391,11 +406,11 @@ function applyPromo() {
     usedPromos.push(encoded);
     saveData();
   }
-  goToPromoMenu();
+  mainMenu();
 }
 
 function generateId() {
-  return '_' + Math.random().toString(36).substr(2, 9);
+  return Math.random().toString(36).substring(2, 12);
 }
 
 loginScreen();
