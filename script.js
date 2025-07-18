@@ -13,13 +13,13 @@ const accounts = {
 };
 
 const promoCodes = {
-  "TkNJU1VEMzc=": {used: false, reward: () => addBalance(100)},      // NICUSD37
-  "R0lGVFRFTE0=": {used: false, reward: () => addCase("gift")},      // GIFTELM (подарунковий кейс)
-  "U1BJTkNPSU4=": {used: false, reward: () => alert("Спіни ще не реалізовано")}, // SPINCOIN
-  "T1BFTkJBVExQQVM=": {used: false, reward: () => alert("Батл пас буде додано")}, // OPENBATLPAS
-  "RE9OQVRMTjE0ODg=": {used: false, reward: () => addBalance(100)},  // DONATLN1488 (100 нікусів)
-  "SEFMQVhYWA==": {used: false, unlimited: true, reward: () => addBalance(1000)}, // HALAVAXXX (1000 нікусів безліміт)
-  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")} // REALGIFT (безлімітний подарунковий кейс)
+  "TkNJU1VEMzc=": {used: false, reward: () => { addBalance(100); alert("Отримано 100 нікусів!"); }},
+  "R0lGVFRFTQ==": {used: false, reward: () => { addCase("gift"); alert("Отримано подарунковий кейс!"); }},
+  "U1BJTkNPSU4=": {used: false, reward: () => { alert("Спіни ще не реалізовано"); }},
+  "T1BFTkJBVExQQVM=": {used: false, reward: () => { alert("Батл пас буде додано"); }},
+  "RE9OQVRMTjE0ODg=": {used: false, unlimited: true, reward: () => { addBalance(100); alert("Отримано 100 нікусів!"); }},
+  "SEFMQVFhWWFg=": {used: false, unlimited: true, reward: () => { addBalance(1000); alert("Отримано 1000 нікусів!"); }},
+  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => { addCase("gift"); alert("Отримано подарунковий кейс!"); }}
 };
 
 let currentUser = null;
@@ -38,7 +38,7 @@ function saveData() {
   if (currentUser) {
     localStorage.setItem(currentUser + "_balance", balance);
     localStorage.setItem(currentUser + "_inventory", JSON.stringify(inventory));
-    localStorage.setItem(currentUser + "_promos", JSON.stringify(usedPromos));
+    localStorage.setItem(currentUser + "_usedPromos", JSON.stringify(usedPromos));
     localStorage.setItem(currentUser + "_blockedItems", JSON.stringify(Array.from(blockedItems)));
     localStorage.setItem(currentUser + "_cart", JSON.stringify(cart));
   }
@@ -48,9 +48,14 @@ function loadData() {
   if (currentUser) {
     balance = parseInt(localStorage.getItem(currentUser + "_balance")) || 0;
     inventory = JSON.parse(localStorage.getItem(currentUser + "_inventory")) || [];
-    usedPromos = JSON.parse(localStorage.getItem(currentUser + "_promos")) || [];
+    usedPromos = JSON.parse(localStorage.getItem(currentUser + "_usedPromos")) || [];
     blockedItems = new Set(JSON.parse(localStorage.getItem(currentUser + "_blockedItems")) || []);
     cart = JSON.parse(localStorage.getItem(currentUser + "_cart")) || [];
+    for (const code of usedPromos) {
+      if (promoCodes[code]) {
+        promoCodes[code].used = true;
+      }
+    }
   }
 }
 
@@ -97,7 +102,7 @@ function mainMenu() {
     <div style="margin: 10px;">
       <img src="img/case_gift.png" width="150"><br>
       <button disabled>Подарунковий кейс (Тільки через промо-код)</button><br>
-      <small>Одноразовий промо-код: GIFTELM</small><br>
+      <small>Одноразовий промо-код: GIFTEM</small><br>
       <small style="user-select:none; color:#331f00;">Багаторазовий промо-код (секретний): REALGIFT</small>
     </div>
   `;
@@ -140,7 +145,7 @@ function showInventory() {
       const isBlocked = blockedItems.has(item.id);
       if (item.type === "case") {
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; box-shadow: 0 0 5px 2px gold;">
+          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center;">
             <b>Кейс: ${getCaseName(item.caseType)}</b><br />
             <img src="img/case_${item.caseType}.png" width="120" /><br />
             <button onclick="openCase(${idx})" ${isBlocked ? "disabled" : ""}>Відкрити</button><br />
@@ -154,7 +159,7 @@ function showInventory() {
       } else if (item.type === "bill") {
         const premium = item.premium ? "🌟Преміум" : "";
         html += `
-          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; box-shadow: 0 0 5px 2px gold; cursor:pointer;">
+          <div style="border:1px solid #999; margin:10px; padding:10px; width:150px; text-align:center; cursor:pointer;">
             <img src="img/${item.img}" width="120" /><br />
             <b>${item.name}</b><br />
             <i>${item.rarity}</i><br />
@@ -369,31 +374,27 @@ function applyPromo() {
     alert("Введи промо-код");
     return;
   }
-  const codeUpper = input.toUpperCase();
-  const encoded = btoa(codeUpper);
-
+  const encoded = btoa(input.toUpperCase());
   if (!(encoded in promoCodes)) {
     alert("Промо-код невірний або неактивний");
     return;
   }
   const promo = promoCodes[encoded];
   if (promo.used && !promo.unlimited) {
-    alert("Цей промо-код уже використано");
+    alert("Цей промо-код вже було використано");
     return;
   }
   promo.reward();
-  promo.used = true;
-  if (!usedPromos.includes(encoded)) usedPromos.push(encoded);
-  saveData();
-  alert("Промо-код активовано!");
+  if (!promo.unlimited) {
+    promo.used = true;
+    usedPromos.push(encoded);
+    saveData();
+  }
   goToPromoMenu();
 }
 
 function generateId() {
-  return Math.random().toString(36).substr(2, 9);
+  return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// --- Старт програми ---
-window.onload = () => {
-  loginScreen();
-};
+loginScreen();
