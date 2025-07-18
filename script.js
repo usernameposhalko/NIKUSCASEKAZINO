@@ -13,13 +13,13 @@ const accounts = {
 };
 
 const promoCodes = {
-  "TkNJU1VEMzc=": {used: true, reward: () => addBalance(100)},
-  "R0lGVFRFTQ==": {used: false, reward: () => addCase("gift")},
-  "U1BJTkNPSU4=": {used: true, reward: () => alert("Спіни ще не реалізовано")},
-  "T1BFTkJBVExQQVM=": {used: true, reward: () => alert("Батл пас буде додано")},
-  "RE9UQVRMTA0ODg=": {used: false, unlimited: true, reward: () => addBalance(100)},  // 
-  "SEFMQVFhWWFg=": {used: false, unlimited: true, reward: () => addBalance(1000)}, // 
-  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")}
+  "TkNJU1VEMzc=": {used: true, unlimited: false, reward: () => addBalance(100)},      // NICUSCASE37 - вже використано
+  "R0lGVFRFTQ==": {used: false, unlimited: false, reward: () => addCase("gift")},    // GIFTTEAM
+  "U1BJTkNPSU4=": {used: true, unlimited: false, reward: () => alert("Спіни ще не реалізовано")}, // SPINCOIN - неактивний
+  "T1BFTkJBVExQQVM=": {used: true, unlimited: false, reward: () => alert("Батл пас буде додано")}, // OPENBATLPAS - неактивний
+  "RE9UQVRMTA0ODg=": {used: false, unlimited: true, reward: () => addBalance(100)},  // DONAT1488 - безлімітний 100 нікусів
+  "SEFMQVFhWWFg=": {used: false, unlimited: true, reward: () => addBalance(1000)},   // HALAVAXXX - безлімітний 1000 нікусів
+  "UkVBTEdJRlQ=": {used: false, unlimited: true, reward: () => addCase("gift")}      // REALGIFT - подарунковий кейс безлімітний
 };
 
 let currentUser = null;
@@ -364,12 +364,12 @@ function goToPromoMenu() {
 }
 
 function applyPromo() {
-  const input = document.getElementById("promoInput").value.trim();
+  const input = document.getElementById("promoInput").value.trim().toUpperCase();
   if (!input) {
     alert("Введи промо-код");
     return;
   }
-  const encoded = btoa(input.toUpperCase());
+  const encoded = btoa(input);
   if (!(encoded in promoCodes)) {
     alert("Промо-код невірний або неактивний");
     return;
@@ -380,7 +380,9 @@ function applyPromo() {
     return;
   }
   promo.reward();
-  promo.used = true;
+  if (!promo.unlimited) {
+    promo.used = true;
+  }
   if (!usedPromos.includes(encoded)) usedPromos.push(encoded);
   saveData();
   goToPromoMenu();
