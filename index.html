@@ -2,18 +2,46 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NICUS CASE</title>
+  <title>NICUS CASE ULTRA</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Тимчасово вбудовано стилі для лого та жовтої лінії */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111;
+      font-family: sans-serif;
+    }
+
+    #logo-container {
+      text-align: center;
+      padding: 20px 0 10px;
+    }
+
+    #logo {
+      width: 280px;
+      max-width: 100%;
+    }
+
+    .yellow-line {
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(to right, gold, #ffcc00, gold);
+      box-shadow: 0 0 10px gold;
+    }
+
+    #app {
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
-  <div id="logo" style="text-align:center; margin:10px;">
-    <img src="img/logo.png" alt="NICUS CASE" style="max-width:200px;"/>
+  <div id="logo-container">
+    <img src="img/logo.png" alt="NICUS CASE ULTRA" id="logo" />
   </div>
+  <div class="yellow-line"></div>
 
-  <div id="app">
-    <!-- Тут буде інтерфейс через JS -->
-  </div>
+  <div id="app"></div>
 
   <script src="script.js"></script>
 </body>
